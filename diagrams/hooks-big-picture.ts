@@ -1,0 +1,26 @@
+import { area, arrow, box, db, layout, text } from "./_lib";
+// Every feature runs on a lifecycle event of the agent's session.
+export default layout([
+  ...area("session", 0, 0, 1180, 150, "Agent session (Claude Code, Codex, Copilot, OpenCode)"),
+  box("e1", 20, 60, 150, 60, "SessionStart", "blue"),
+  box("e2", 190, 60, 170, 60, "UserPromptSubmit", "blue"),
+  box("e3", 380, 60, 140, 60, "PreToolUse", "blue"),
+  box("e4", 540, 60, 160, 60, "PostToolUse\n(+Failure)", "blue"),
+  box("e5", 720, 60, 120, 60, "Stop", "blue"),
+  box("e6", 860, 60, 140, 60, "PreCompact", "blue"),
+  box("e7", 1020, 60, 140, 60, "SessionEnd", "blue"),
+  box("hook", 380, 230, 420, 70, "agent-mem hook <harness> [event]\nstandard library only · 400 ms deadline", "pink"),
+  arrow("e1", "hook"), arrow("e2", "hook"), arrow("e3", "hook"), arrow("e4", "hook"),
+  arrow("e5", "hook"), arrow("e6", "hook"), arrow("e7", "hook"),
+  db("sqlite", 120, 380, 260, 100, "memory.db\n(SQLite, WAL)"),
+  box("spool", 430, 390, 170, 70, "spool/\n(deadline or lock)", "sand"),
+  box("observe", 660, 370, 200, 60, "agent-mem observe", "green"),
+  box("index", 660, 450, 200, 60, "agent-mem index", "green"),
+  box("serve", 900, 410, 200, 60, "agent-mem serve\n:37778", "lilac"),
+  arrow("hook", "sqlite", "capture.apply"),
+  arrow("hook", "spool"),
+  arrow("hook", "observe", "Stop / SessionEnd"),
+  arrow("hook", "index"),
+  arrow("hook", "serve", "SessionStart"),
+  text(820, 250, "context or deny\nback on stdout", 14, { strokeColor: "#5E594F" }),
+]);

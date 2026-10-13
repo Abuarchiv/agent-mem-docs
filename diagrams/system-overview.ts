@@ -1,0 +1,27 @@
+import { area, arrow, box, db, layout } from "./_lib";
+// agent-mem end to end: record, think, recall.
+export default layout([
+  ...area("agents", 0, 0, 260, 470, "agents"),
+  box("cc", 30, 50, 200, 56, "Claude Code", "blue"),
+  box("cx", 30, 140, 200, 56, "Codex", "blue"),
+  box("cp", 30, 230, 200, 56, "Copilot CLI / app", "blue"),
+  box("oc", 30, 320, 200, 56, "OpenCode (plugin)", "blue"),
+  ...area("rec", 330, 0, 330, 470, "record (hook path, stdlib only)"),
+  box("hook", 360, 50, 270, 70, "agent-mem hook\nnormalize · clean · capture", "pink"),
+  box("inject", 360, 170, 270, 70, "context blocks\nbriefing · hits · warnings", "pink"),
+  box("spool", 360, 300, 270, 56, "spool/ (when busy)", "sand"),
+  db("db", 730, 160, 240, 110, "memory.db\nSQLite · FTS5 · WAL"),
+  ...area("think", 1040, 0, 360, 470, "think (background)"),
+  box("obs", 1070, 50, 300, 70, "agent-mem observe\nfacts · work log · review · graph", "green"),
+  box("idx", 1070, 170, 300, 70, "agent-mem index\nspool · embeddings · consolidation", "green"),
+  box("cli", 1070, 290, 300, 56, "claude -p · codex exec · copilot -s", "yellow"),
+  box("mem0", 1070, 380, 300, 56, "mem0/ (Qdrant, rebuildable)", "sand"),
+  ...area("recall", 330, 520, 1070, 160, "recall"),
+  box("mcp", 360, 570, 270, 70, "agent-mem mcp\nmem_search · mem_get · …", "lilac"),
+  box("view", 730, 570, 270, 70, "agent-mem serve\nviewer :37778", "lilac"),
+  box("cmd", 1070, 570, 300, 70, "agent-mem search · show · status", "lilac"),
+  arrow("cc", "hook"), arrow("cx", "hook"), arrow("cp", "hook"), arrow("oc", "hook"),
+  arrow("hook", "db"), arrow("db", "inject"), arrow("inject", "cc", "stdout"), arrow("hook", "spool"),
+  arrow("obs", "db"), arrow("idx", "db"), arrow("obs", "cli"), arrow("obs", "mem0"),
+  arrow("mcp", "db"), arrow("view", "db"), arrow("cmd", "db"),
+]);

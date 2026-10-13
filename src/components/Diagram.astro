@@ -1,0 +1,18 @@
+---
+// An Excalidraw diagram rendered by `npm run diagrams` (sources in diagrams/*.ts).
+interface Props {
+  name: string;
+  alt: string;
+  caption?: string;
+}
+const { name, alt, caption } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+
+<figure class="am-diagram not-content">
+  <img src={`${base}/diagrams/${name}.svg`} alt={alt} loading="lazy" />
+  <figcaption>
+    {caption && <span>{caption}</span>}
+    <a href={`${base}/diagrams/${name}.excalidraw`} download>Open in Excalidraw</a>
+  </figcaption>
+</figure>

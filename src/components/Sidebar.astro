@@ -1,0 +1,11 @@
+---
+import Default from "@astrojs/starlight/components/Sidebar.astro";
+const { siteTitleHref } = Astro.locals.starlightRoute;
+---
+
+<a href={siteTitleHref} class="am-brand am-sidebar-brand">agent-mem <span class="am-badge">docs</span></a>
+<Default><slot /></Default>
+<div class="am-sidebar-foot">
+  <strong><span class="am-dot"></span>Local only</strong>
+  <span>No telemetry, no cloud, no API key. One SQLite file on your machine.</span>
+</div>

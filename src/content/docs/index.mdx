@@ -1,0 +1,103 @@
+---
+title: agent-mem
+description: One local memory for Claude Code, Codex, GitHub Copilot and OpenCode. No API key, no cloud, no telemetry.
+---
+import { Card, CardGrid, LinkCard, Steps, Aside } from "@astrojs/starlight/components";
+import Diagram from "../../components/Diagram.astro";
+
+<p class="am-lede">agent-mem records what your coding agents do, writes short facts from it in the background, and
+reminds every agent of what matters at the right moment. Nothing leaves your computer. Everything sits in one
+SQLite file, and you can browse it at <code>http://localhost:37778</code>.</p>
+
+## Quick start
+
+<Steps>
+
+1. Install the command (macOS, Linux, Windows):
+
+   ```sh
+   uv tool install "agent-mem[semantic,observer] @ git+https://github.com/Abuarchiv/agent-mem"
+   ```
+
+2. Connect every agent installed on this machine:
+
+   ```sh
+   agent-mem setup all --write
+   ```
+
+3. Check that it works:
+
+   ```sh
+   agent-mem doctor
+   ```
+
+4. Start a session in any repository and send one request. The next session begins with what the first one learned.
+
+</Steps>
+
+## What you get
+
+<CardGrid>
+  <Card title="A briefing at every start" icon="open-book">
+    Facts, decisions, failed attempts, preferences and the last session's open steps, ranked by what has proven
+    useful, within a token budget.
+  </Card>
+  <Card title="The right memory at the right moment" icon="star">
+    Matching memories for a prompt, only when the match is strong. The history of a file before it is read or
+    edited. How an error was fixed last time.
+  </Card>
+  <Card title="Corrections that stick" icon="warning">
+    Say "use pnpm instead of npm" twice and every agent is told before it runs `npm`. Switch the rule on and the
+    command is blocked.
+  </Card>
+  <Card title="One memory for every agent" icon="puzzle">
+    What Claude Code learned is there for Codex, Copilot and OpenCode, and the other way round.
+  </Card>
+  <Card title="Facts without an API key" icon="rocket">
+    The CLI you already pay for writes the facts in the background: Claude Haiku for Claude Code, GPT-6-Luna for
+    Codex and Copilot. A request never leaves its vendor.
+  </Card>
+  <Card title="Local and private" icon="laptop">
+    No telemetry, no cloud, no server. Secrets are removed before storage; `<private>` text is never stored.
+  </Card>
+</CardGrid>
+
+## How it works
+
+<Diagram name="system-overview" alt="Agents call agent-mem's hook, which records into memory.db and returns context; background processes write facts with the agents' CLIs; MCP tools, the viewer and the CLI read the memory." />
+
+| Moment | What happens |
+| --- | --- |
+| Session start | A briefing for the agent, a panel for you: project memory, which model writes facts, recent work, what needs your attention |
+| You send a request | Matching memories, only when the match is strong; the terminal stays quiet |
+| Before a command or edit | A note if it matches something you corrected, the file's history, or a block for a rule you switched on |
+| A command fails | If this error was fixed before, the agent sees how |
+| The agent finishes | The request is saved; a background process writes facts, a title, the session summary and lessons |
+| Once a day | Duplicates and replaced facts are retired; your own notes are never touched |
+| Compaction | Session goal, decisions and open problems are given back to the agent |
+| Session end | What was saved: requests, files, errors |
+
+Read [Architecture Overview](/architecture/overview/) for the full picture.
+
+## Supported
+
+| | |
+| --- | --- |
+| Agents | Claude Code 2.x, Codex CLI 0.x, GitHub Copilot CLI 1.0.96 and the Copilot app 1.1.29 (macOS), OpenCode 1.18 |
+| Python | 3.11 to 3.14 |
+| OS | macOS (arm64; Intel without search by meaning), Linux, Windows |
+| Install size | about 10 MB, plus 220 MB for search by meaning, plus about 400 MB for background facts |
+
+<Aside type="note">
+agent-mem is not on PyPI. Install it from the repository, never by its bare name: a package registered there under
+that name would not be this one.
+</Aside>
+
+## Next steps
+
+<CardGrid>
+  <LinkCard title="Installation" href="/agent-mem-docs/getting-started/installation/" description="Install options, sizes, what setup writes." />
+  <LinkCard title="Your first session" href="/agent-mem-docs/getting-started/first-session/" description="What you see and what the agent gets." />
+  <LinkCard title="Agents" href="/agent-mem-docs/agents/claude-code/" description="Claude Code, Codex, Copilot and OpenCode in detail." />
+  <LinkCard title="Configuration" href="/agent-mem-docs/configuration/config-json/" description="Every setting with its default." />
+</CardGrid>
