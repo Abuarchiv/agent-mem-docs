@@ -7,7 +7,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "diagrams": "tsx scripts/render-diagrams.ts",
-    "check": "tsx scripts/check-coverage.ts"
+    "check": "tsx scripts/check-coverage.ts",
+    "markdown": "tsx scripts/export-markdown.ts"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.2",

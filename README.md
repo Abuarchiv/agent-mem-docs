@@ -14,6 +14,7 @@ npm run dev          # http://localhost:4321/agent-mem-docs/
 npm run build
 npm run diagrams     # re-render diagrams/*.ts with Excalidraw (needs Playwright's Chromium)
 AGENT_MEM_SRC=../agent-mem npx tsx scripts/check-coverage.ts
+npm run markdown -- ../agent-mem-md   # the plain-Markdown copy (agent-mem-docs-md)
 ```
 
 | Folder | What |
@@ -22,9 +23,10 @@ AGENT_MEM_SRC=../agent-mem npx tsx scripts/check-coverage.ts
 | `diagrams/` | diagram scenes in TypeScript (`_lib.ts`: boxes, arrows, sequence diagrams) |
 | `public/diagrams/` | rendered `.svg` and editable `.excalidraw` files |
 | `src/styles/`, `src/components/` | the agent-mem look: palette, fonts, sidebar, brand |
-| `scripts/` | diagram renderer, coverage check |
+| `scripts/` | diagram renderer, coverage check, Markdown export |
 
 The coverage check fails when the docs miss a table, a config key, a CLI command or option, an environment
-variable, an MCP tool or a hook event that the agent-mem code has. CI runs it on every push and daily.
+variable, an MCP tool or a hook event that the agent-mem code has, or shows a config default the code does not
+have. CI runs it on every push and daily.
 
 Fonts: Bricolage Grotesque, Figtree and JetBrains Mono under the SIL Open Font License (`public/fonts/*-OFL.txt`).
