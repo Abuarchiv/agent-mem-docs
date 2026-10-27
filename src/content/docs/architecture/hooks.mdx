@@ -190,7 +190,8 @@ and Copilot a subagent's start (`SubagentStart`, `subagentStart`) gets the same 
 **What it does:**
 1. Resolves the project from `cwd` (git remote, else repository root, worktrees shared with their repository).
 2. Upserts the session `<harness>:<session_id>` and stores the event.
-3. Builds the briefing, ranked by importance and use rather than age, within `budgets.session_start` (8,000 tokens).
+3. Builds the briefing (your rules and the last session first, then by importance and use) within
+   `budgets.session_start` (800 tokens).
    See [Context Injection](/architecture/context-injection/).
 4. Starts `agent-mem serve` if nothing answers on port 37778 (a refused loopback connection costs well under a
    millisecond).
