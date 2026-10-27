@@ -42,6 +42,33 @@ const keys = Object.entries(groups).flatMap(([cls, prefix]) => fieldsOf(cls).map
 const topLevel = fieldsOf("Config").filter((f) => !["data_dir", "warnings", ...Object.values(groups)].includes(f));
 expect("configuration/config-json", [...keys, ...topLevel.map((k) => `\`${k}\``)], "config key");
 
+// Config defaults: the "all defaults" block must hold each field's literal default (a changed default went unnoticed
+// for days: names matched, values did not).
+const literal = (raw: string): unknown => {
+  const value = raw.replace(/\s+#.*$/, "").replace(/^field\(default_factory=lambda: (.*)\)$/, "$1");
+  try {
+    return JSON.parse(value.replace(/(\d)_(\d)/g, "$1$2").replace(/\bTrue\b/g, "true").replace(/\bFalse\b/g, "false"));
+  } catch {
+    return undefined; // not a plain literal; the key check above still covers it
+  }
+};
+const defaultsOf = (cls: string) => {
+  const body = config.split(new RegExp(`^class ${cls}\\b.*$`, "m"))[1]?.split(/^(?:class |def |@dataclass)/m)[0] ?? "";
+  return [...body.matchAll(/^    (\w+): [^=\n]+= (.+)$/gm)].map((m) => [m[1], literal(m[2])] as const);
+};
+const block = doc("configuration/config-json").match(/```json title="config\.json \(all defaults\)"\n([\s\S]*?)```/)?.[1];
+const documented = block ? JSON.parse(block) : {};
+for (const [cls, prefix] of [["Config", ""], ...Object.entries(groups)]) {
+  for (const [name, value] of defaultsOf(cls)) {
+    const shown = prefix ? documented[prefix]?.[name] : documented[name];
+    if (value !== undefined && JSON.stringify(shown) !== JSON.stringify(value))
+      missing.push(`configuration/config-json: default ${prefix ? `${prefix}.` : ""}${name} is ${JSON.stringify(value)}, docs say ${JSON.stringify(shown)}`);
+    const row = doc("configuration/config-json").match(new RegExp(`^\\| \`${prefix ? `${prefix}\\.` : ""}${name}\` \\| \`([^\`]*)\` \\|`, "m"));
+    if (value !== undefined && row && JSON.stringify(literal(row[1]) ?? row[1]) !== JSON.stringify(value))
+      missing.push(`configuration/config-json: table default ${prefix ? `${prefix}.` : ""}${name} is ${JSON.stringify(value)}, docs say ${row[1]}`);
+  }
+}
+
 // CLI: every sub-command and every option of it.
 const cli = code("src/agent_mem/cli/__init__.py");
 const sections = cli.split(/sub\.add_parser\(/).slice(1);
