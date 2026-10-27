@@ -122,8 +122,9 @@ the embedder is missing): `agent-mem upgrade --extras semantic observer`.
 <details>
 <summary>OpenCode requests never get facts</summary>
 
-By design: no OpenCode CLI is used for extraction. Add `"ollama"` to `observe.providers`, or set
-`observe.cross_vendor: true` to let another installed CLI take them.
+They go to `opencode run` with the free `opencode/big-pickle` model. Check that `opencode` is on `PATH` for the
+observer and that `agent-mem doctor` does not name it as failing or paused; `observe.opencode_model` picks another
+model. Without OpenCode installed a request is saved word for word.
 
 </details>
 

@@ -4,13 +4,14 @@ description: Every block agent-mem gives an agent, when it gives it, how it is c
 ---
 import { Aside, Tabs, TabItem } from "@astrojs/starlight/components";
 
-agent-mem gives the agent context at six moments. Each block is plain text in one frame, chosen by rank and cut to
+agent-mem gives the agent context at these moments. Each block is plain text in one frame, chosen by rank and cut to
 a token budget. Nothing is injected when nothing qualifies.
 
 | Moment | Block | Budget key | Default | Chosen by |
 | --- | --- | --- | --- | --- |
 | Session start | [briefing](#the-briefing) | `budgets.session_start` | 800 | your rules and the last session first, then rank (importance, use) |
 | A prompt | [matching memories](#prompt-hits) | `budgets.prompt` | 2,400 | search, confident hits only |
+| Session start, a prompt | [other agents at work](#other-agents-at-work) | — | one line per session | running sessions of this project and the files they change |
 | Before a tool | [rule note](#warnings) + [file history](#file-history) | `budgets.warning` + `budgets.file_history` | 300 + 1,200 | rules for the command, memories linked to the files |
 | A failed tool | [fix hint](#fix-hint) | `budgets.failure` | 400 | recipe for the error signature |
 | After compaction | [compact block](#after-compaction) | `budgets.compact` | 4,000 | this session's goal, decisions, open errors, files |
@@ -121,6 +122,23 @@ coming. `budgets.session_start: 4000` allows a block five times as long as the d
 - native notes: the agent's **own** it loads itself (Claude Code its `memory/*.md`, Codex its rollout summaries);
   another agent's come with a prompt they match
 
+## Other agents at work
+
+**When:** session start and every prompt, if another session of this project is running. **Budget:** none; one line
+per session.
+
+```text
+<agent-mem>
+! Another agent (codex, active 3 min ago, on "add divide to calc") is changing `calc.py`, `test_calc.py`. Check with the user before editing the same files.
+</agent-mem>
+```
+
+A session counts as running while a request of it is open and its last event is under 20 minutes old. Named are
+the files its requests changed in the last three hours that still exist, up to six. Each session is named again
+only once it changed another file. On 2026-10-26 five sessions worked on the same request at once, unaware of each
+other, and changed the same files twice over. The block is not under the usual "data, not instructions" header:
+it is what happens now, outside this session.
+
 ## Prompt hits
 
 **When:** every `UserPromptSubmit`. **Budget:** `budgets.prompt` (2,400).
@@ -150,6 +168,24 @@ No confident hit, no block. The terminal stays quiet either way.
 ```
 
 An **enabled** rule does not inject; it denies the tool call. See [Learning & Ranking](/architecture/learning-and-ranking/#corrections-become-rules).
+
+Your own preferences and corrections that name the file about to be edited or the command about to run come here
+too, once per session each, at most three:
+
+```text
+- Rule [M31] for `install.ps1`: In install.ps1 no `exit`, use throw
+```
+
+In the briefing they are one line among many; here they come when they apply. A name must match whole
+(`inject.py` is not `test_inject.py`), a command needs two words (`uv run pytest`, not `ls`). Simulated on real
+sessions this fires about twice per session.
+
+Before an edit, a file that another running agent of the project changed in the last three hours is named, once
+per file and session, in this checkout or another worktree:
+
+```text
+! Another agent (codex, active 4 min ago) changed `src/calc.py` too. Check with the user before editing it, or the two changes collide.
+```
 
 ## File history
 
@@ -184,7 +220,8 @@ Earlier memories about this file (history, not its current contents):
 ## After compaction
 
 **When:** `SessionStart` with `source: "compact"` (Claude Code, Codex), and the `session.compacting` hook on
-OpenCode, which adds the block to the compaction prompt itself. **Budget:** `budgets.compact` (4,000).
+OpenCode, which adds the block to the compaction prompt itself. Copilot ignores context before compaction and starts
+no session after it, so there the block comes with the next prompt. **Budget:** `budgets.compact` (4,000).
 
 ```text
 - Session goal (T41): Add a subtract function to calc.py and run the tests

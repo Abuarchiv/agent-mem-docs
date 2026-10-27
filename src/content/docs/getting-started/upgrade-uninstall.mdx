@@ -28,6 +28,18 @@ agent-mem 1.0.0 (7d6cf39) -> 1.0.0 (86ad40c). Hooks use it now; running sessions
 Add an extra at the same time: `agent-mem upgrade --extras observer`. Running the install script again does the same
 as `upgrade`.
 
+### On Windows
+
+A running program cannot be replaced on Windows, and the viewer, background jobs and every open session's MCP
+server run from agent-mem's own folder. So `agent-mem upgrade` hands over to a PowerShell script and ends; the
+script waits for it, stops those processes, installs, restarts the viewer if it was running, downloads models and
+runs `doctor --fix`. `logs\upgrade.log` in the data folder shows how it went. Restart open sessions afterwards so
+they get their search back. When the installed commit is already the newest, nothing is stopped.
+
+### Docker
+
+`agent-mem upgrade` builds the new image and replaces the container; memory and logins stay.
+
 ### While sessions run
 
 You do not need to close your agents.
